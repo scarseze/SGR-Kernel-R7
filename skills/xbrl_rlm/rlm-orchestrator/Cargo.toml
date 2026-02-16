@@ -1,0 +1,81 @@
+[package]
+name = "rlm-orchestrator"
+version = "0.2.0"
+edition = "2024"
+description = "High-performance Recursive Language Model orchestrator"
+license = "MIT"
+
+[lib]
+name = "rlm"
+
+[[bin]]
+name = "rlm-server"
+path = "src/bin/server.rs"
+
+[[bin]]
+name = "rlm-test"
+path = "src/bin/test_runner.rs"
+
+[[bin]]
+name = "multi-source-experiment"
+path = "src/bin/multi_source_experiment.rs"
+
+[[bin]]
+name = "rlm"
+path = "src/bin/rlm.rs"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for LLM APIs
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "blocking"], default-features = false }
+
+# Hashing for cache keys
+md5 = "0.7"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Configuration
+toml = "0.8"
+config = "0.14"
+
+# Web server
+axum = "0.7"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+
+# Regex for command execution
+regex = "1"
+
+# Logging/tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# CLI colors
+colored = "2"
+
+# Utilities
+async-trait = "0.1"
+futures = "0.3"
+tokio-stream = "0.1"
+parking_lot = "0.12"
+dashmap = "6"
+uuid = { version = "1", features = ["v4"] }
+
+# WASM runtime for dynamic code execution
+wasmtime = "27"
+wat = "1"  # For parsing WebAssembly Text format
+
+# For Rust->WASM compilation
+tempfile = "3"
+lru = "0.12"
+
+[dev-dependencies]
+tokio-test = "0.4"

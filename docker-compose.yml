@@ -1,0 +1,100 @@
+services:
+  sgr_proxy:
+    build: ./proxy
+    container_name: sgr_proxy
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    restart: always
+
+  sgr-core:
+    build: .
+    container_name: sgr_core
+    depends_on:
+      - sgr_redis
+      - sgr_qdrant
+      - sgr_proxy
+    env_file:
+      - ../.env # Connect to parent .env
+    environment:
+      - PROXY_URL=http://sgr_proxy:8000
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - QDRANT_HOST=sgr_qdrant
+      - QDRANT_PORT=6333
+      - REDIS_URL=redis://sgr_redis:6379/0
+      - LOG_FORMAT=json
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=utf-8
+      - LANG=C.UTF-8
+    volumes:
+      - .:/app # Developer Mode (Enabled)
+      - ./memory.db:/app/memory.db
+      - ./generated_files:/app/generated_files
+      - ../refs:/app/refs # Mount references directory
+      # Data Mounts for RAG
+      - ./data:/mnt/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Access host localhost for Ollama
+    ports:
+      - "8501:8501"
+    command: [ "chainlit", "run", "ui_app.py", "--port", "8501", "--host", "0.0.0.0" ]
+    restart: always
+    tty: true
+    stdin_open: true
+
+  sgr-worker:
+    build: .
+    container_name: sgr_worker
+    depends_on:
+      - sgr_redis
+      - sgr_qdrant
+    env_file:
+      - ../.env
+    environment:
+      - REDIS_URL=redis://sgr_redis:6379/0
+      - QDRANT_HOST=sgr_qdrant
+      - QDRANT_PORT=6333
+      - TASK_QUEUE_TYPE=redis
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - PYTHONUNBUFFERED=1
+      - LANG=C.UTF-8
+    volumes:
+      - .:/app
+      - ./memory.db:/app/memory.db
+      - ./generated_files:/app/generated_files
+      - ../refs:/app/refs
+      - ./data:/mnt/data:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    command: [ "python", "run_worker.py" ]
+
+  sgr_qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sgr_qdrant
+    ports:
+      - "6343:6333" # Changed to 6343 because local_qdrant takes 6333-6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: always
+
+  sgr_redis:
+    image: redis:alpine
+    container_name: sgr_redis
+    ports:
+      - "6380:6379" # Changed to 6380 to avoid conflict
+    restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Web UI
+      - "4317:4317" # OTLP gRPC
+    restart: always
+
+volumes:
+  qdrant_data:

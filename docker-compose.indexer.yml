@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # 1. Vector Database
+  sgr_qdrant:
+    image: qdrant/qdrant:latest
+    container_name: sgr_qdrant_indexer
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_data_indexer:/qdrant/storage
+    restart: always
+
+  # 2. Indexer Script (SGR Core)
+  sgr-indexer:
+    build: .
+    container_name: sgr_indexer
+    depends_on:
+      - sgr_qdrant
+    environment:
+      - QDRANT_HOST=sgr_qdrant
+      - QDRANT_PORT=6333
+      # Assuming Ollama is running on the HOST machine (Windows/Linux)
+      # If Linux Host: use http://172.17.0.1:11434
+      # If Windows Host: use http://host.docker.internal:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+
+      # PERFORMANCE SETTINGS (For RTX 3090/4090)
+      - RAG_CONCURRENCY=50 # High parallelism
+      - MAX_FILE_SIZE_MB=50 # Allow large PDFs
+
+    volumes:
+      - .:/app
+      # MOUNT YOUR DATA HERE (Host Path : Container Path)
+      # Ensure Container Path matches what populate_rag.py expects:
+      # /mnt/SA_C, /mnt/ARCHIVE_D, /mnt/SA_D
+
+      # EXAMPLE: UNCOMMENT AND ADJUST PATHS
+      # - C:/MyFiles/SA_C:/mnt/SA_C:ro
+      # - D:/Archive:/mnt/ARCHIVE_D:ro
+      # - E:/Data:/mnt/SA_D:ro
+
+    command: tail -f /dev/null # Keep alive so you can run exec later

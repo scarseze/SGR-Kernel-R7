@@ -1,0 +1,45 @@
+# Core
+openai>=1.0.0
+docker>=7.0.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+requests
+httpx
+
+# RAG & Memory
+qdrant-client
+# ollama (not using python lib, just HTTP requests)
+
+# Skills
+duckduckgo-search>=2.0.0 # DuckDuckGo Search (WebSearchSkill)
+ics # CalendarSkill
+lxml # XBRLAnalystSkill
+pandas # XBRLAnalystSkill
+jinja2 # GostWriterSkill
+pypdf # RLM PDF Support
+structlog # Observability
+
+# Office Suite
+python-docx
+python-pptx
+mcp>=1.0.0
+
+openpyxl
+matplotlib
+seaborn
+tabulate
+
+# Optional/Testing
+pytest
+rich
+
+# UI
+chainlit>=1.0.0
+fastapi
+uvicorn
+aiogram>=3.0.0
+
+# Telemetry
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp

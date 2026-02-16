@@ -1,0 +1,13 @@
+# Lightweight Python sandbox (using local cache due to network issues)
+FROM sgr_core-sgr-core:latest
+
+# Install common data science libs pre-baked to save time
+# RUN pip install --no-cache-dir pandas numpy matplotlib scipy networkx
+
+# Create a non-root user
+RUN useradd -m -u 1000 sanduser
+USER sanduser
+WORKDIR /home/sanduser
+
+# Command to keep container alive (we will exec into it)
+CMD ["tail", "-f", "/dev/null"]
