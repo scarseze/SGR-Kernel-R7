@@ -24,31 +24,31 @@ It abstracts away the interaction with LLMs, Vector DBs, and Docker containers, 
 ```mermaid
 graph TD
     subgraph "External World"
-        User[User / Client]
-        Telegram[Telegram Bot]
-        API[REST API]
+        User["User / Client"]
+        Telegram["Telegram Bot"]
+        API["REST API"]
     end
 
     subgraph "SGR Kernel (The Runtime)"
         direction TB
         
-        Scheduler[DAG Scheduler & Replan Loop]
+        Scheduler["DAG Scheduler & Replan Loop"]
         
         subgraph "Security Ring (Middleware)"
-            Policy[Policy Engine]
-            Firewall[Input/Output Validator]
-            Timeout[Timeout Authority]
+            Policy["Policy Engine"]
+            Firewall["Input/Output Validator"]
+            Timeout["Timeout Authority"]
         end
         
-        Memory[Trace System & Context]
-        Resources[Budget & Concurrency Guard]
+        Memory["Trace System & Context"]
+        Resources["Budget & Concurrency Guard"]
     end
 
     subgraph "User Space (Skills)"
-        Portfolio[Finance Analyst]
-        RAG[Deep Research / RAG]
-        LogicRL[Logic-RL Solver]
-        Sandbox[Code Interpreter (Docker)]
+        Portfolio["Finance Analyst"]
+        RAG["Deep Research / RAG"]
+        LogicRL["Logic-RL Solver"]
+        Sandbox["Code Interpreter (Docker)"]
     end
 
     User --> Telegram

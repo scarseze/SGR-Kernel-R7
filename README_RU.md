@@ -24,31 +24,31 @@
 ```mermaid
 graph TD
     subgraph "Внешний мир"
-        User[Пользователь]
-        Telegram[Telegram Бот]
-        API[REST API]
+        User["Пользователь"]
+        Telegram["Telegram Бот"]
+        API["REST API"]
     end
 
     subgraph "SGR Kernel (Среда исполнения)"
         direction TB
         
-        Scheduler[Планировщик DAG и Цикл Replan]
+        Scheduler["Планировщик DAG и Цикл Replan"]
         
         subgraph "Кольцо Безопасности (Middleware)"
-            Policy[Движок Политик]
-            Firewall[Валидатор Ввода/Вывода]
-            Timeout[Контроль Таймаутов]
+            Policy["Движок Политик"]
+            Firewall["Валидатор Ввода/Вывода"]
+            Timeout["Контроль Таймаутов"]
         end
         
-        Memory[Система Трейсов и Контекст]
-        Resources[Бюджет и Семафоры]
+        Memory["Система Трейсов и Контекст"]
+        Resources["Бюджет и Семафоры"]
     end
 
     subgraph "Пространство Пользователя (Скиллы)"
-        Portfolio[Финансовый Аналитик]
-        RAG[Deep Research / RAG]
-        LogicRL[Решатель Logic-RL]
-        Sandbox[Интерпретатор Кода (Docker)]
+        Portfolio["Финансовый Аналитик"]
+        RAG["Deep Research / RAG"]
+        LogicRL["Решатель Logic-RL"]
+        Sandbox["Интерпретатор Кода (Docker)"]
     end
 
     User --> Telegram
