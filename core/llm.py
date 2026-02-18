@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from typing import Type, TypeVar, Optional, Any
+from typing import Type, TypeVar, Optional, Any, Dict
 from pydantic import BaseModel, ValidationError
 from openai import AsyncOpenAI, APITimeoutError, APIConnectionError, RateLimitError, InternalServerError
 import asyncio
@@ -10,7 +10,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 T = TypeVar("T", bound=BaseModel)
 
 class LLMService:
-    def __init__(self, base_url: str = None, api_key: str = None, model: str = "deepseek-chat", timeout: float = 60.0):
+    def __init__(self, base_url: str = None, api_key: str = None, model: str = "deepseek-chat", timeout: float = 60.0, replay_engine: Any = None):
         self.api_key = api_key or os.getenv("LLM_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
         self.client = AsyncOpenAI(
             base_url=base_url or os.getenv("LLM_BASE_URL", "https://api.deepseek.com"),
@@ -18,6 +18,7 @@ class LLMService:
             timeout=timeout
         )
         self.model = model or os.getenv("LLM_MODEL", "deepseek-chat")
+        self.replay_engine = replay_engine
 
     @retry(
         retry=retry_if_exception_type((APITimeoutError, APIConnectionError, RateLimitError, InternalServerError)),
@@ -37,6 +38,14 @@ class LLMService:
             f"```json\n{schema_json}\n```\n"
             "Do not include any text outside the JSON object."
         )
+
+        # REPLAY CHECK (Release Gate v1)
+        if self.replay_engine:
+            # We use combined prompts as key
+            prompt_key = f"{full_system_prompt}::{user_prompt}::{self.model}"
+            cached_resp = self.replay_engine.get_replay(prompt_key)
+            if cached_resp:
+                return self._parse_json(cached_resp, response_model), {"cached": True, "replay": True}
 
         try:
             start_t = asyncio.get_event_loop().time()
@@ -64,6 +73,11 @@ class LLMService:
                 "latency_ms": latency,
                 "model": self.model
             }
+
+            # RECORD (Release Gate v1)
+            if self.replay_engine:
+                prompt_key = f"{full_system_prompt}::{user_prompt}::{self.model}"
+                self.replay_engine.record_call(prompt_key, self.model, temperature, content, usage)
 
             return self._parse_json(content, response_model), usage
             
@@ -96,3 +110,51 @@ class LLMService:
                     pass
                 
                 raise ValueError(f"Could not parse JSON from LLM response: {content[:100]}...")
+
+
+class ModelPool:
+    """
+    Manages a pool of LLM services for different tiers.
+    """
+    def __init__(self, config: Dict[str, Any], replay_engine: Any = None):
+        # Default fallback: if specific tier model not set, use default 'model' from config
+        default_model = config.get("model", "deepseek-chat")
+        
+        # Fast Tier: cheap, fast, good for extraction/simple tasks
+        self.fast = LLMService(
+            base_url=config.get("base_url"),
+            api_key=config.get("api_key"),
+            model=config.get("fast_model", default_model),
+            timeout=config.get("fast_timeout", 60.0),
+            replay_engine=replay_engine
+        )
+        
+        # Mid Tier: balanced, good for standard coding/summary
+        self.mid = LLMService(
+            base_url=config.get("base_url"),
+            api_key=config.get("api_key"),
+            model=config.get("mid_model", default_model),
+            timeout=config.get("mid_timeout", 300.0),
+            replay_engine=replay_engine
+        )
+        
+        # Heavy Tier: expensive, smart, good for planning/reasoning/critic
+        self.heavy = LLMService(
+            base_url=config.get("base_url"),
+            api_key=config.get("api_key"),
+            model=config.get("heavy_model", default_model),
+            timeout=config.get("heavy_timeout", 900.0),
+            replay_engine=replay_engine
+        )
+        
+        # Mapping for easy lookup
+        from core.router import ModelTier
+        self._tiers = {
+            ModelTier.FAST: self.fast,
+            ModelTier.MID: self.mid,
+            ModelTier.HEAVY: self.heavy
+        }
+
+    def get(self, tier: 'ModelTier') -> LLMService:
+        return self._tiers.get(tier, self.mid)
+

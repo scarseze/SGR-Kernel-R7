@@ -1,0 +1,31 @@
+name: lora_trainer
+version: "1.0.0"
+description: "LoRA/PEFT research trainer. Automated HPO search for optimal adapters."
+entrypoint: handler.py
+class_name: LoRATrainerSkill
+
+requires:
+  - torch
+  - peft
+  - transformers
+  - datasets
+  - trl
+
+capabilities:
+  - reasoning
+  - code
+
+risk_level: high
+cost_class: expensive
+
+requires_gpu: true
+requires_filesystem: true
+requires_sandbox: false
+requires_approval_hint: true
+
+side_effects: true
+idempotent: true
+deterministic: false
+
+timeout_sec: 7200
+retry_policy: standard

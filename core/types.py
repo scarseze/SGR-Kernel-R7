@@ -54,7 +54,11 @@ class SkillMetadata(BaseModel):
     risk_level: RiskLevel = RiskLevel.LOW
     cost_class: CostClass = CostClass.CHEAP
     retry_policy: RetryPolicy = RetryPolicy.NONE
-    
+
+    # Tier Routing Constraints
+    min_tier: Optional[str] = None
+    max_tier: Optional[str] = None
+
     @field_validator('retry_policy', mode='before')
     @classmethod
     def normalize_retry_policy(cls, v: Any) -> RetryPolicy:
@@ -111,6 +115,11 @@ class SkillManifest(BaseModel):
     requires_sandbox: bool = False
     requires_approval_hint: bool = False
     
+    # Tier Routing Constraints
+    min_tier: Optional[str] = None # e.g. "mid", "heavy"
+    max_tier: Optional[str] = None # e.g. "fast"
+    # End Tier Constraints
+    
     timeout_sec: float = 60.0
     retry_policy: RetryPolicy = RetryPolicy.NONE
     output_schema: Optional[Dict[str, Any]] = None
@@ -138,6 +147,10 @@ class SkillExecutionContext(BaseModel):
     timeout: float = 0.0
     attempt: int = 1
     
+    # Tier Routing Injection
+    # The engine injects the specific LLM service selected by the router for this execution
+    llm: Optional[Any] = Field(None, description="Router-selected LLMService")
+
     @property
     def is_retry(self) -> bool:
         """True if this is not the first attempt. Middleware should check this to avoid side-effect duplication."""

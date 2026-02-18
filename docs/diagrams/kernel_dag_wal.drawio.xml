@@ -1,0 +1,124 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Kernel DAG + WAL Recovery">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" connect="1" arrows="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Request -->
+        <mxCell id="req" value="Request&#xa;Run Experiment"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+          vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Planner -->
+        <mxCell id="plan" value="Kernel Planner&#xa;build DAG&#xa;resolve skills"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#5b9bd5;"
+          vertex="1" parent="1">
+          <mxGeometry x="260" y="60" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- DAG -->
+        <mxCell id="dag" value="Execution DAG"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;"
+          vertex="1" parent="1">
+          <mxGeometry x="520" y="60" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Step nodes -->
+        <mxCell id="s1" value="Step 1&#xa;dataset_skill"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+          vertex="1" parent="1">
+          <mxGeometry x="480" y="180" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s2" value="Step 2&#xa;config_skill"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+          vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s3" value="Step 3&#xa;training_skill"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="520" y="280" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s4" value="Step 4&#xa;eval_skill"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="740" y="280" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Executor -->
+        <mxCell id="exec" value="Step Executor&#xa;• dependency check&#xa;• retries&#xa;• dispatcher call"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;"
+          vertex="1" parent="1">
+          <mxGeometry x="260" y="180" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Dispatcher -->
+        <mxCell id="disp" value="Dispatcher&#xa;local / ssh"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;"
+          vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="150" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Trace WAL -->
+        <mxCell id="wal" value="Trace WAL&#xa;append step event&#xa;save after success"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;"
+          vertex="1" parent="1">
+          <mxGeometry x="300" y="400" width="200" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- State -->
+        <mxCell id="state" value="Execution State Store&#xa;step status&#xa;artifacts refs"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ffcc;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="540" y="400" width="200" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Crash -->
+        <mxCell id="crash" value="Crash / Restart"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcccc;strokeColor=#b85450;"
+          vertex="1" parent="1">
+          <mxGeometry x="780" y="400" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Recovery -->
+        <mxCell id="recovery" value="Recovery Loader&#xa;read WAL&#xa;rebuild DAG state"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#5b9bd5;"
+          vertex="1" parent="1">
+          <mxGeometry x="780" y="500" width="200" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Resume -->
+        <mxCell id="resume" value="Resume from&#xa;last completed step"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+          vertex="1" parent="1">
+          <mxGeometry x="780" y="620" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="req" target="plan" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="plan" target="dag" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e3" edge="1" parent="1" source="dag" target="exec" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="exec" target="disp" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e5" edge="1" parent="1" source="dag" target="s1" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="s1" target="s2" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        
+        <!-- INFERRED COMPLETION OF TRUNCATED USER INPUT -->
+        <mxCell id="e7" edge="1" parent="1" source="s2" target="s3" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="s3" target="s4" style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        
+        <!-- State saving edges -->
+        <mxCell id="e9" edge="1" parent="1" source="s3" target="wal" style="endArrow=block;dashed=1;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="s3" target="state" style="endArrow=block;dashed=1;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -6,7 +6,10 @@ class QueryRewriter:
     def __init__(self, llm: LLMService):
         self.llm = llm
 
-    async def rewrite(self, query: str) -> str:
+    async def rewrite(self, query: str, llm: Optional[LLMService] = None) -> str:
+        # Use provided LLM (e.g. escalated tier) or default
+        model = llm or self.llm
+        
         # Improved Prompt with Zero-Shot CoT
         prompt = f"""
         Act as an expert search engineer. Your goal is to rewrite the user's query to maximize retrieval quality for a semantic vector search engine.
@@ -21,7 +24,7 @@ class QueryRewriter:
         User Query: "{query}"
         Rewritten Query:
         """
-        response = await self.llm.complete(prompt)
+        response = await model.complete(prompt)
         return response.strip().strip('"')
 
 class QueryExpander:

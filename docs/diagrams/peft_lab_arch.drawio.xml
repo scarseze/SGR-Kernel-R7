@@ -1,0 +1,93 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="PEFT Lab Architecture">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- User -->
+        <mxCell id="user" value="User / CLI&#xa;experiment.yaml"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+          vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Kernel -->
+        <mxCell id="kernel" value="Agent Kernel&#xa;• Step Executor&#xa;• Skill Router&#xa;• State Store&#xa;• WAL Trace"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#5b9bd5;"
+          vertex="1" parent="1">
+          <mxGeometry x="460" y="140" width="340" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Skills -->
+        <mxCell id="skills" value="Skill Layer&#xa;dataset / config / training&#xa;eval / hpo / merge / artifact&#xa;protocols"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;"
+          vertex="1" parent="1">
+          <mxGeometry x="420" y="300" width="420" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Dispatcher -->
+        <mxCell id="dispatcher" value="Dispatcher&#xa;Local / SSH&#xa;RemoteJobSpec"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;"
+          vertex="1" parent="1">
+          <mxGeometry x="500" y="450" width="260" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Workers -->
+        <mxCell id="worker1" value="GPU Training Worker"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="260" y="590" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="worker2" value="Eval Worker"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="520" y="590" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="worker3" value="Merge / Export Worker"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+          vertex="1" parent="1">
+          <mxGeometry x="780" y="590" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Storage -->
+        <mxCell id="storage" value="Artifact & Metric Store&#xa;• adapters&#xa;• metrics&#xa;• manifests&#xa;• traces (WAL)"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;"
+          vertex="1" parent="1">
+          <mxGeometry x="430" y="710" width="380" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" edge="1" parent="1" source="user" target="kernel"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e2" edge="1" parent="1" source="kernel" target="skills"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e3" edge="1" parent="1" source="skills" target="dispatcher"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e4" edge="1" parent="1" source="dispatcher" target="worker1"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e5" edge="1" parent="1" source="dispatcher" target="worker2"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e6" edge="1" parent="1" source="dispatcher" target="worker3"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e7" edge="1" parent="1" source="worker1" target="storage"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e8" edge="1" parent="1" source="worker2" target="storage"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e9" edge="1" parent="1" source="worker3" target="storage"
+          style="endArrow=block;html=1;"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

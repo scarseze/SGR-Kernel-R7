@@ -14,28 +14,22 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     logger.info("Initializing Worker Node...")
+    # Create Engine with Worker Mode config
+    # Workers typically don't need the full LLM config if they just execute tools, 
+    # but for Agent Workers, they might.
     
-    # Ensure we use Redis if available
-    if not os.getenv("TASK_QUEUE_TYPE"):
-        os.environ["TASK_QUEUE_TYPE"] = "redis"
-        
-    engine = CoreEngine()
+    # In V1.x, the CoreEngine handles task polling internally if configured as a worker.
+    # The 'run_worker' method is the entry point.
     
-    # Register handlers (example)
-    # in a real app, these might be registered via decorators or a central registry file
-    
-    async def sample_handler(params):
-        logger.info(f"Executing sample task with params: {params}")
-        await asyncio.sleep(1)
-        return "Processed"
-        
-    engine.register_task_handler("sample_task", sample_handler)
-    
-    # Start Worker Loop
     try:
+        engine = CoreEngine()
+        logger.info("Worker Node Started. Polling for tasks...")
         await engine.run_worker()
     except KeyboardInterrupt:
         logger.info("Worker stopped by user.")
+    except Exception as e:
+        logger.error(f"Worker crashed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     if sys.platform == "win32":

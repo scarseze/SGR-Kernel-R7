@@ -23,7 +23,8 @@ class RAGPipeline(RAGInterface):
         repair_strategy: Optional[RepairStrategy] = None,
         max_retries: int = 2,
         min_score: float = 0.6,
-        rerank_threshold: float = 0.0
+        rerank_threshold: float = 0.0,
+        model_pool: Optional[Any] = None # Avoid circular import type hint
     ):
         self.retriever = retriever
         self.rewriter = rewriter
@@ -39,6 +40,7 @@ class RAGPipeline(RAGInterface):
         self.critic = critic
         self.repair_strategy = repair_strategy
         self.max_retries = max_retries
+        self.model_pool = model_pool
 
         # Policy Settings
         self.min_score = min_score
@@ -62,8 +64,15 @@ class RAGPipeline(RAGInterface):
         
         while attempt <= (self.max_retries + 1):
             try:
-                # 1. Rewrite
-                rewritten_query = await self.rewriter.rewrite(current_query)
+                # 1. Rewrite (Escalate if attempt > 1)
+                rewrite_llm = None
+                if attempt > 1 and self.model_pool:
+                    # RAG Escalation: Fast -> Mid
+                    # If we have a model pool, switch to mid tier for better rewriting
+                    # We assume rewriter acts on FAST tier by default
+                    rewrite_llm = self.model_pool.mid
+                
+                rewritten_query = await self.rewriter.rewrite(current_query, llm=rewrite_llm)
                 
                 # 2. Expand
                 queries = await self.expander.expand(rewritten_query)

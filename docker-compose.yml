@@ -1,14 +1,14 @@
 services:
-  sgr_proxy:
-    build: ./proxy
-    container_name: sgr_proxy
-    env_file:
-      - ../.env
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8000:8000"
-    restart: always
+#   sgr_proxy:
+#     build: ./proxy
+#     container_name: sgr_proxy
+#     env_file:
+#       - ../.env
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#     ports:
+#       - "8000:8000"
+#     restart: always
 
   sgr-core:
     build: .
@@ -16,11 +16,11 @@ services:
     depends_on:
       - sgr_redis
       - sgr_qdrant
-      - sgr_proxy
+      # - sgr_proxy
     env_file:
       - ../.env # Connect to parent .env
     environment:
-      - PROXY_URL=http://sgr_proxy:8000
+      # - PROXY_URL=http://sgr_proxy:8000
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - QDRANT_HOST=sgr_qdrant
       - QDRANT_PORT=6333

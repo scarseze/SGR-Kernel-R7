@@ -1,136 +1,112 @@
-# SGR Kernel (Schema-Guided Reasoning Kernel)
+# SGR Kernel (Agentic OS) 🧠
 
-**An Enterprise-grade Operating System for Autonomous AI Agents.**
+> **Enterprise-Grade Agentic Kernel for Automated Research & Engineering**
 
-![Python](https://img.shields.io/badge/Python-3.11-blue) ![Architecture](https://img.shields.io/badge/Architecture-Kernel--Based-orange) ![Security](https://img.shields.io/badge/Security-Ring--0-red) ![Status](https://img.shields.io/badge/Status-Hardened_%28R7%29-green)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-green)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Coverage](https://img.shields.io/badge/Tests-46%20Passing-brightgreen)
+
+> [!WARNING]
+> **Release Candidate (v1.0.0-rc1)**
+> This is a stable release candidate for the v1.x series.
+> *   **Production Policy**: Use allowed with supervision.
+> *   **API Stability**: Public API (`CoreEngine`, `Skill`) is stable. Internal implementations (`_fsm_impl`) may evolve.
+> *   **Feedback**: Please report issues to the core team.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/badge/Release-v1.0.0--rc1-green)](https://github.com/sgr/kernel/releases)
+
+**Agentic Operating System for Automated Machine Learning Research**
+> Kernel runtime is stable.
+> Plugin ABI may evolve in v1.x minors.
+
+## 📖 Documentation Index (Artifact Pack)
+
+| Document | Purpose | Audience |
+| :--- | :--- | :--- |
+| **[Standard Overview](docs/system_overview.md)** | 🎯 Purpose, Scope, Subsystems | All |
+| **[Architecture](docs/architecture.md)** | 🧩 Diagrams & Component Flow | Engineers |
+| **[Execution Model](docs/execution_model.md)** | ⚙️ Deterministic FSM & Core Loop | Core Devs |
+| **[Skill Development](docs/skill_development.md)** | 🤝 Interface, Context, & Registration | Skill Devs |
+| **[Security Model](docs/security_model.md)** | 🛡️ ACLs, Capabilities, & Sandboxing | Security |
+| **[Reliability Engine](docs/reliability.md)** | 💥 Fault Classification & Recovery | SREs |
+| **[Replay Model](docs/replay_model.md)** | 📼 Deterministic Replay & Tapes | Engineers |
+| **[Artifact Store](docs/artifact_store.md)** | 📦 Content-Addressed Storage (CAS) | SREs |
+| **[Lifecycle State](docs/lifecycle.md)** | 🔄 7-Phase Execution Workflow | Core Devs |
+| **[Experiment Spec](docs/experiment_spec.md)** | 🧪 DSL & Config Reference | Researchers |
+| **[Deployment Guide](docs/deployment.md)** | 🚀 Setup & Production Staging | DevOps |
+| **[Reproducibility](docs/reproducibility.md)** | 🔬 Manifests & Hashing | Scientists |
+| **[Charts](docs/diagrams/)** | 📊 Editable Draw.io files | Architects |
+
 
 ---
 
-## 🚀 Overview
+## 🏗️ Architecture High-Level
 
-**SGR Kernel** is not just another agent framework. It is a **runtime environment** designed to orchestrate Large Language Models (LLMs) with the same rigor as an operating system orchestrates processes.
+The SGR Kernel acts as an operating system for AI Agents. It provides:
+1.  **Orchestration**: DAG-based planning and execution.
+2.  **Safety**: Sandboxed code execution (Docker) and policy enforcement.
+3.  **Observability**: Full trace history (WAL) and metrics.
+4.  **Distribution**: Unified dispatching of heavy jobs (Training, Rendering).
 
-It abstracts away the interaction with LLMs, Vector DBs, and Docker containers, providing a stable, secure, and observable foundation for building complex reasoning applications ("Skills").
+## 🚀 Quick Start
 
-**Key Philosophy:**
-*   **Kernel vs. User Space**: The Core handles scheduling, security, and memory. Skills handle business logic.
-*   **Defense in Depth**: Every skill execution passes through a rigorous Middleware Ring (Policy, Timeout, Approval).
-*   **Crash Safety**: A failed skill does not crash the agent. The Kernel catches exceptions, enforces budgets, and triggers replan loops.
+```bash
+# 1. Install
+pip install -r requirements.txt
 
----
+# 2. Run Tests
+pytest tests/
 
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    subgraph "External World"
-        User["User / Client"]
-        Telegram["Telegram Bot"]
-        API["REST API"]
-    end
-
-    subgraph "SGR Kernel (The Runtime)"
-        direction TB
-        
-        Scheduler["DAG Scheduler & Replan Loop"]
-        
-        subgraph "Security Ring (Middleware)"
-            Policy["Policy Engine"]
-            Firewall["Input/Output Validator"]
-            Timeout["Timeout Authority"]
-        end
-        
-        Memory["Trace System & Context"]
-        Resources["Budget & Concurrency Guard"]
-    end
-
-    subgraph "User Space (Skills)"
-        Portfolio["Finance Analyst"]
-        RAG["Deep Research / RAG"]
-        LogicRL["Logic-RL Solver"]
-        Sandbox["Code Interpreter (Docker)"]
-    end
-
-    User --> Telegram
-    Telegram --> Firewall
-    Firewall --> Scheduler
-    
-    Scheduler -->|Orchestrate| Policy
-    Policy -->|Execute| Skills
-    
-    Skills -->|Syscall| Memory
-    Skills -->|Lock/Cost| Resources
+# 3. Start Kernel
+python main.py
 ```
 
+## 🧯 Safety & Responsibility
+> **Warning**: SGR Kernel is an agent execution runtime. Skills may cause real-world side effects.
+> *   Always use **Capability Enforcement** (ACLs).
+> *   Enable **Approval Gates** for sensitive actions (WRITE, DELETE).
+> *   Run in **Dockerized Sandboxes** whenever possible.
+
+## ⚖️ Guarantees
+*   **Idempotency**: Safe to retry.
+*   **Reproducibility**: `manifest.json` guarantees exact replay.
+*   **Security**: No code runs outside the sandbox.
+
+## 🛡️ Compatibility / Совместимость
+*   **v1.x**: Backward compatible API (Strict Semantic Versioning).
+*   **v2.0**: Reserved only for breaking changes in the **Execution Model**.
+
 ---
-
-## 🛡️ Kernel Services
-
-### 1. Process Management (The Scheduler)
-*   **DAG Execution**: Supports complex dependency graphs, not just linear chains.
-*   **Replan Loop**: Automatically detects execution failures and triggers localized replanning (Self-Healing).
-*   **Concurrency Guard (R7)**: Semaphores prevent resource exhaustion by limiting parallel skill execution.
-
-### 2. Memory & Observability
-*   **Atomic Tracing**: Every state change is recorded in a structured `RequestTrace`.
-*   **Step Replay**: Full execution history allows for deterministic replay and debugging.
-*   **Plan Hashing (F4)**: Detects drift between initial plans and execution reality.
-
-### 3. Security Ring (Middleware)
-*   **Policy Engine**: Role-Based Access Control (RBAC) to allow/deny skills based on user context.
-*   **Timeout Authority (F1)**: Strict enforcement of execution time limits per skill metadata.
-*   **Invariant Validators**: Runtime checks to ensure system stability guarantees are never violated.
-
-### 4. Resource Management
-*   **Budget Accounting (R3)**: Tracks token usage and execution costs per attempt.
-*   **Sanitization**: Automatically strips sensitive data from logs and outputs.
+*Built by SGR Team | 2026*
 
 ---
 
-## 📦 Installed Capabilities (User Space)
+# Russian Section / Русская Секция 🇷🇺
 
-The Kernel comes pre-loaded with powerful skills:
+## 📖 Индекс Документации
 
-1.  **Logic-RL**: A reasoning engine that solves complex logic puzzles by iteratively writing and verifying Python code in a sandbox.
-2.  **RLM (Recursive Reader)**: Analyzes massive documents by recursively breaking them down and summarizing sections.
-3.  **Deep Research**: Autonomous web surfing and information synthesis.
-4.  **Office Automation**: Generation of `.docx` and `.pptx` reports.
+| Документ | Назначение | Аудитория |
+| :--- | :--- | :--- |
+| **[Обзор Системы](docs/system_overview.md)** | 🎯 Цели, Границы, Подсистемы | Все |
+| **[Архитектура](docs/architecture.md)** | 🧩 Диаграммы и Потоки | Инженеры |
+| **[Модель Исполнения](docs/execution_model.md)** | ⚙️ FSM и Основной Цикл | Core Devs |
+| **[Разработка Скиллов](docs/skill_development.md)** | 🤝 Интерфейс, Контекст, Регистрация | Skill Devs |
+| **[Модель Безопасности](docs/security_model.md)** | 🛡️ ACL, Права и Песочницы | Security |
+| **[Reliability Engine](docs/reliability.md)** | 💥 Классификация сбоев и Ретраи | SRE |
+| **[Replay Model](docs/replay_model.md)** | 📼 Детерминированный Реплей | Engineers |
+| **[Хранилище Артефактов](docs/artifact_store.md)** | 📦 Content-Addressed Storage (CAS) | SRE |
+| **[Жизненный Цикл](docs/lifecycle.md)** | 🔄 7 Фаз Выполнения Шага | Core Devs |
+| **[Спецификация Эксперимента](docs/experiment_spec.md)** | 🧪 DSL и Конфиги | Researchers |
+| **[Руководство по Развертыванию](docs/deployment.md)** | 🚀 Установка и Production | DevOps |
+| **[Воспроизводимость](docs/reproducibility.md)** | 🔬 Манифесты и Хеширование | Ученые |
+| **[Диаграммы](docs/diagrams/)** | 📊 Исходники Draw.io (.xml) | Архитекторы |
 
----
 
-## 🚀 Getting Started
+## 🏗️ Архитектура (Кратко)
+SGR Kernel — это операционная система для AI Агентов.
+1.  **Оркестрация**: Планирование DAG.
+2.  **Безопасность**: Изоляция кода в Docker.
+3.  **Наблюдаемость**: Полная история (WAL).
+4.  **Распределение**: Унифицированный диспетчер.
 
-### Prerequisites
-*   Docker & Docker Compose
-*   Python 3.11+
-*   Make (optional)
-
-### Quick Start
-
-1.  **Configure Environment**:
-    ```bash
-    cp .env.example .env
-    # Set OPENAI_API_KEY, GROQ_API_KEY, etc.
-    ```
-
-2.  **Boot the Kernel**:
-    ```bash
-    docker-compose up -d --build
-    ```
-    *   **UI**: http://localhost:8501
-    *   **Vector DB**: localhost:6343
-
-3.  **Run Tests (Verification)**:
-    ```bash
-    python -m pytest tests/kernel/test_hardening_r7.py
-    ```
-
----
-
-## 📚 Documentation
-*   [KERNEL_SPEC.md](KERNEL_SPEC.md): Strict architectural specification.
-*   [SKILL_DEVELOPMENT.md](SKILL_DEVELOPMENT.md): Guide to creating new kernel modules.
-
----
-
-**Status**: Hardened Release (R7). Tested for production stability.

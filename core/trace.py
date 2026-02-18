@@ -58,6 +58,7 @@ class AttemptTrace(BaseModel):
     end_time: float = 0.0
     error: Optional[str] = None
     result_snippet: Optional[str] = None
+    tier: Optional[str] = None # Log which tier was used (fast, mid, heavy)
 
 class StepTrace(BaseModel):
     step_id: str
