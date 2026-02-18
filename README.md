@@ -78,9 +78,6 @@ python main.py
 *   **v2.0**: Reserved only for breaking changes in the **Execution Model**.
 
 ---
-*Built by SGR Team | 2026*
-
----
 
 # Russian Section / Русская Секция 🇷🇺
 
